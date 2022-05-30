@@ -1,28 +1,54 @@
-import React, { Component } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
-  DrawerItemList,
   DrawerItem,
+  DrawerItemList,
 } from "@react-navigation/drawer";
-
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import React, { Component } from "react";
+import { Linking, Text, View } from "react-native";
 import { Icon, Image } from "react-native-elements";
-import { View, Text, Linking } from "react-native";
-
-import Menu from "./MenuComponent";
+import { fetchComments, fetchDishes, fetchLeaders } from "../redux/ActionCreators";
+import About from "./AboutComponent";
+import Contact from "./ContactComponent";
 import Dishdetail from "./DishdetailComponent";
 import Home from "./HomeComponent";
-import Contact from "./ContactComponent";
-import About from "./AboutComponent";
-
+import Menu from "./MenuComponent";
 import { connect } from "react-redux";
-import { fetchLeaders } from "../redux/ActionCreators";
+import { baseUrl } from "../shared/baseUrl";
+import Reservation from "./ReservationComponent";
 
 const mapDispatchToProps = (dispatch) => ({
   fetchLeaders: () => dispatch(fetchLeaders()),
+  fetchDishes: () => dispatch(fetchDishes()),
+  fetchComments: () => dispatch(fetchComments()),
 });
+
+function ReservationNavigatorScreen() {
+  const ReservationNavigator = createStackNavigator();
+  return (
+    <ReservationNavigator.Navigator
+      initialRouteName="Reservation"
+      screenOptions={{
+        headerStyle: { backgroundColor: "#7cc" },
+        headerTintColor: "#fff",
+        headerTitleStyle: { color: "#fff" },
+      }}
+    >
+      <ReservationNavigator.Screen
+        name="Reservation"
+        component={Reservation}
+        options={({ navigation }) => ({
+          headerTitle: "Reserve Table",
+          headerLeft: () => (
+            <Icon name="menu" size={36} color="#fff" onPress={() => navigation.toggleDrawer()} />
+          ),
+        })}
+      />
+    </ReservationNavigator.Navigator>
+  );
+}
 
 function MenuNavigatorScreen() {
   const MenuNavigator = createStackNavigator();
@@ -34,19 +60,17 @@ function MenuNavigatorScreen() {
         headerTintColor: "#fff",
         headerTitleStyle: { color: "#fff" },
       }}
-      options={({ navigation }) => ({
-        headerTitle: "Menu",
-        headerLeft: () => (
-          <Icon
-            name="menu"
-            size={36}
-            color="#fff"
-            onPress={() => navigation.toggleDrawer()}
-          />
-        ),
-      })}
     >
-      <MenuNavigator.Screen name="Menu" component={Menu} />
+      <MenuNavigator.Screen
+        name="Menu"
+        component={Menu}
+        options={({ navigation }) => ({
+          headerTitle: "Menu",
+          headerLeft: () => (
+            <Icon name="menu" size={36} color="#fff" onPress={() => navigation.toggleDrawer()} />
+          ),
+        })}
+      />
       <MenuNavigator.Screen
         name="Dishdetail"
         component={Dishdetail}
@@ -69,12 +93,7 @@ function HomeNavigatorScreen() {
       options={({ navigation }) => ({
         headerTitle: "Home",
         headerLeft: () => (
-          <Icon
-            name="menu"
-            size={36}
-            color="#fff"
-            onPress={() => navigation.toggleDrawer()}
-          />
+          <Icon name="menu" size={36} color="#fff" onPress={() => navigation.toggleDrawer()} />
         ),
       })}
     >
@@ -96,12 +115,7 @@ function ContactNavigatorScreen() {
       options={({ navigation }) => ({
         headerTitle: "Contact",
         headerLeft: () => (
-          <Icon
-            name="menu"
-            size={36}
-            color="#fff"
-            onPress={() => navigation.toggleDrawer()}
-          />
+          <Icon name="menu" size={36} color="#fff" onPress={() => navigation.toggleDrawer()} />
         ),
       })}
     >
@@ -123,12 +137,7 @@ function AboutNavigatorScreen() {
       options={({ navigation }) => ({
         headerTitle: "About",
         headerLeft: () => (
-          <Icon
-            name="menu"
-            size={36}
-            color="#fff"
-            onPress={() => navigation.toggleDrawer()}
-          />
+          <Icon name="menu" size={36} color="#fff" onPress={() => navigation.toggleDrawer()} />
         ),
       })}
     >
@@ -176,11 +185,7 @@ function MainNavigatorScreen() {
           title: "Contact",
           headerShown: false,
           drawerIcon: ({ focused, size }) => (
-            <Icon
-              name="contacts"
-              size={size}
-              color={focused ? "#7cc" : "#ccc"}
-            />
+            <Icon name="contacts" size={size} color={focused ? "#7cc" : "#ccc"} />
           ),
         }}
       ></MainNavigator.Screen>
@@ -196,6 +201,22 @@ function MainNavigatorScreen() {
           ),
         }}
       ></MainNavigator.Screen>
+      <MainNavigator.Screen
+        name="ReservationScreen"
+        component={ReservationNavigatorScreen}
+        options={{
+          title: "Reserve Table",
+          headerShown: false,
+          drawerIcon: ({ focused, size }) => (
+            <Icon
+              name="cutlery"
+              type="font-awesome"
+              size={size}
+              color={focused ? "#7cc" : "#ccc"}
+            />
+          ),
+        }}
+      />
     </MainNavigator.Navigator>
   );
 }
@@ -213,14 +234,13 @@ function CustomDrawerContent(props) {
       >
         <View style={{ flex: 1 }}>
           <Image
-            source={require("./images/logo.png")}
+            // source={require("./images/logo.png")}
+            source={{ uri: baseUrl + "images/logo.png" }}
             style={{ margin: 10, width: 80, height: 60 }}
           />
         </View>
         <View style={{ flex: 2 }}>
-          <Text style={{ color: "#fff", fontSize: 22, fontWeight: "bold" }}>
-            TDK & Friends
-          </Text>
+          <Text style={{ color: "#fff", fontSize: 22, fontWeight: "bold" }}>TDK & Friends</Text>
         </View>
       </View>
       <DrawerItemList {...props} />
@@ -229,9 +249,7 @@ function CustomDrawerContent(props) {
         icon={({ focused, color, size }) => (
           <Icon name="help" size={size} color={focused ? "#7cc" : "#ccc"} />
         )}
-        onPress={() =>
-          Linking.openURL("https://reactnavigation.org/docs/getting-started")
-        }
+        onPress={() => Linking.openURL("https://reactnavigation.org/docs/getting-started")}
       />
     </DrawerContentScrollView>
   );
@@ -241,6 +259,8 @@ class Main extends Component {
   componentDidMount() {
     // redux
     this.props.fetchLeaders();
+    this.props.fetchDishes();
+    this.props.fetchComments();
   }
   render() {
     return (
