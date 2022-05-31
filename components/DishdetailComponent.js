@@ -55,7 +55,7 @@ class Dishdetail extends Component {
           visible={this.state.showModal}
           onRequestClose={() => this.setState({ showModal: false })}
         >
-          <View style={{ justifyContent: "center", margin: 20 }}>
+          <View style={{ justifyContent: "center", margin: 50 }}>
             <Rating
               startingValue={this.state.rating}
               showRating={true}
@@ -126,7 +126,13 @@ class RenderComments extends Component {
     return (
       <View key={index} style={{ margin: 10 }}>
         <Text style={{ fontSize: 14 }}>{item.comment}</Text>
-        <Text style={{ fontSize: 12 }}>{item.rating} Stars</Text>
+        <Rating
+          readonly
+          imageSize={15}
+          style={{ paddingVertical: 5, flexDirection: "row", justifyContent: "flex-start" }}
+          startingValue={item.rating}
+        />
+        {/* <Text style={{ fontSize: 12 }}> {item.rating} Stars</Text> */}
         <Text style={{ fontSize: 12 }}>{"-- " + item.author + ", " + item.date} </Text>
       </View>
     );
@@ -173,7 +179,7 @@ class RenderDish extends Component {
               reverse
               name={"pencil"}
               type='font-awesome'
-              color={"#50"}
+              color={"#512DA8"}
               onPress={() => this.props.onPressComment()}
             />
           </View>
