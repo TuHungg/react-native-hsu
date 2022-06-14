@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { baseUrl } from "../shared/baseUrl";
 import Loading from "./LoadingComponent";
 
+import * as Animatable from "react-native-animatable";
+
 const mapStateToProps = (state) => {
   return {
     dishes: state.dishes,
@@ -63,11 +65,18 @@ class Home extends Component {
     const dish = this.props.dishes.dishes.filter((dish) => dish.featured === true)[0];
     const promo = this.props.promotions.promotions.filter((promo) => promo.featured === true)[0];
     const leader = this.props.leaders.leaders.filter((leader) => leader.featured === true)[0];
+
     return (
       <ScrollView>
-        <RenderItem item={dish} />
-        <RenderItem item={promo} />
-        <RenderItem item={leader} />
+        <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
+          <RenderItem item={dish} />
+        </Animatable.View>
+        <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
+          <RenderItem item={promo} />
+        </Animatable.View>
+        <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
+          <RenderItem item={leader} />
+        </Animatable.View>
         <RenderItem
           item={dish}
           isLoading={this.props.dishes.isLoading}

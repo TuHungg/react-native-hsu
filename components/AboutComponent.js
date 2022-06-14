@@ -7,6 +7,8 @@ import { baseUrl } from "../shared/baseUrl";
 import { connect } from "react-redux";
 import Loading from "./LoadingComponent";
 
+import * as Animatable from "react-native-animatable";
+
 const mapStateToProps = (state) => {
   return {
     leaders: state.leaders,
@@ -26,7 +28,15 @@ export class About extends Component {
 
     return (
       <ScrollView nestedScrollEnabled={true} style={{ width: "100%", flex: 1 }}>
-        <View style={{ width: "100%", flex: 1 }}>
+        <Animatable.View animation='fadeInDown' duration={2000} delay={1000}>
+          <RenderHistory />
+        </Animatable.View>
+        <Animatable.View
+          style={{ width: "100%", flex: 1 }}
+          animation='fadeInUp'
+          duration={2000}
+          delay={1000}
+        >
           <RenderLeadership
             leaders={this.props.leaders.leaders}
             isLoading={this.props.leaders.isLoading}
@@ -49,7 +59,7 @@ export class About extends Component {
             </Text>
           </Card>
           <LeaderInfo leaders={this.props.leaders.leaders} />
-        </View>
+        </Animatable.View>
       </ScrollView>
     );
   }

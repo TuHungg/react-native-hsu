@@ -1,9 +1,20 @@
 import React, { Component } from "react";
-import { FlatList, ScrollView, Text, View, Modal, YellowBox, Button } from "react-native";
+import {
+  FlatList,
+  ScrollView,
+  Text,
+  View,
+  Modal,
+  YellowBox,
+  Button,
+  PanResponder,
+  Alert,
+} from "react-native";
 import { Card, Icon, Image, Rating, Input } from "react-native-elements";
 import { connect } from "react-redux";
 import { postFavorite, postComment } from "../redux/ActionCreators";
 import { baseUrl } from "./../shared/baseUrl";
+import * as Animatable from "react-native-animatable";
 
 const mapStateToProps = (state) => {
   return {
@@ -27,35 +38,32 @@ class Dishdetail extends Component {
       rating: 3,
       author: "",
       comment: "",
-      // comments: COMMENTS,
-      // dishes: DISHES,
-      // favorites: [],
     };
     YellowBox.ignoreWarnings(["VirtualizedLists should never be nested"]); // ref: https://forums.expo.io/t/warning-virtualizedlists-should-never-be-nested-inside-plain-scrollviews-with-the-same-orientation-use-another-virtualizedlist-backed-container-instead/31361/6
   }
   render() {
     const dishId = parseInt(this.props.route.params.dishId);
 
-    // const dish = this.props.dishes.dishes[dishId];
-    // const comments = this.props.comments.comments.filter((cmt) => cmt.dishId === dishId);
-    // const favorite = this.props.favorites.some((el) => el === dishId);
-
     return (
       <ScrollView>
-        <RenderDish
-          dish={this.props.dishes.dishes[dishId]}
-          favorite={this.props.favorites.some((el) => el === dishId)}
-          onPressFavorite={() => this.markFavorite(dishId)}
-          onPressComment={() => this.setState({ showModal: true })}
-        />
-        <RenderComments
-          comments={this.props.comments.comments.filter((comment) => comment.dishId === dishId)}
-        />
+        <Animatable.View animation={"fadeInDown"} duration={2000} delay={1000}>
+          <RenderDish
+            dish={this.props.dishes.dishes[dishId]}
+            favorite={this.props.favorites.some((el) => el === dishId)}
+            onPressFavorite={() => this.markFavorite(dishId)}
+            onPressComment={() => this.setState({ showModal: true })}
+          />
+        </Animatable.View>
+        <Animatable.View animation={"fadeInDown"} duration={2000} delay={1000}>
+          <RenderComments
+            comments={this.props.comments.comments.filter((comment) => comment.dishId === dishId)}
+          />
+        </Animatable.View>
         <Modal
           visible={this.state.showModal}
           onRequestClose={() => this.setState({ showModal: false })}
         >
-          <View style={{ justifyContent: "center", margin: 50 }}>
+          <Animatable.View style={{ justifyContent: "center", margin: 50 }}>
             <Rating
               startingValue={this.state.rating}
               showRating={true}
@@ -92,7 +100,7 @@ class Dishdetail extends Component {
                 }}
               />
             </View>
-          </View>
+          </Animatable.View>
         </Modal>
       </ScrollView>
     );
@@ -141,10 +149,45 @@ class RenderComments extends Component {
 
 class RenderDish extends Component {
   render() {
+    // gesture
+    const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
+      if (dx < -200) return true; // right to left
+      return false;
+    };
+    const panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (e, gestureState) => {
+        return true;
+      },
+      onPanResponderEnd: (e, gestureState) => {
+        if (recognizeDrag(gestureState)) {
+          Alert.alert(
+            "Add Favorite",
+            "Are you sure you wish to add " + dish.name + " to favorite?",
+            [
+              {
+                text: "Cancel",
+                onPress: () => {
+                  /* nothing */
+                },
+              },
+              {
+                text: "OK",
+                onPress: () => {
+                  this.props.favorite ? alert("Already favorite") : this.props.onPressFavorite();
+                },
+              },
+            ]
+          );
+        }
+        return true;
+      },
+    });
+
+    // render
     const dish = this.props.dish;
     if (dish != null) {
       return (
-        <Card>
+        <Card {...panResponder.panHandlers}>
           <Image
             // source={require("./images/uthappizza.png")}
             source={{ uri: baseUrl + dish.image }}

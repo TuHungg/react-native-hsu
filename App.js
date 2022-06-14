@@ -3,13 +3,18 @@ import Main from "./components/MainComponent";
 // redux
 import { Provider } from "react-redux";
 import { ConfigureStore } from "./redux/ConfigureStore";
+// redux-persist
+import { PersistGate } from "redux-persist/es/integration/react";
+const { persistor, store } = ConfigureStore();
 
-const store = ConfigureStore();
+// const store = ConfigureStore();
 class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <Main />
+        <PersistGate persistor={persistor}>
+          <Main />
+        </PersistGate>
       </Provider>
     );
   }
